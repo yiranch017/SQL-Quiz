@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Quiz · Employees</title>
+<meta name="description" content="A 20-point SQL quiz that runs your queries against a live PostgreSQL database.">
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #1b2330; --muted: #5d6b7e; --line: #dde2ea;
+    --accent: #2457d6; --accent-ink: #ffffff; --good: #14753d; --good-bg: #e3f4ea;
+    --bad: #b42318; --bad-bg: #fdeceb; --code-bg: #f0f3f8; --warn-bg: #fff4d6; --warn: #7a5600;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10141b; --panel: #171d27; --ink: #e6ebf3; --muted: #94a2b8; --line: #2a3445;
+      --accent: #6d97ff; --accent-ink: #0b1220; --good: #62d08f; --good-bg: #12301f;
+      --bad: #ff8f86; --bad-bg: #351614; --code-bg: #0e131b; --warn-bg: #33290c; --warn: #f2c96a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px;
+           background: var(--panel); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 18px; margin: 0; flex: 1 1 auto; }
+  header .who { color: var(--muted); font-size: 13px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .card + .card { margin-top: 16px; }
+  h2 { font-size: 16px; margin: 0 0 8px; }
+  h3 { font-size: 13px; margin: 0 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  p { margin: 0 0 10px; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; padding: 8px 14px; border: 1px solid var(--line);
+           background: var(--panel); color: var(--ink); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--accent); outline-offset: 2px; }
+  input[type=email], input[type=password] { width: 100%; font: inherit; padding: 9px 10px; margin: 4px 0 12px;
+           border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+  label { font-size: 13px; color: var(--muted); }
+  .auth { max-width: 420px; margin: 24px auto; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+  .qlist { list-style: none; padding: 0; margin: 0; }
+  .qlist button { width: 100%; text-align: left; display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .qlist button[aria-current=true] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .qlist .n { font-weight: 700; }
+  .qlist .t { flex: 1; font-size: 13px; color: var(--muted); }
+  .chip { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--code-bg); color: var(--muted); white-space: nowrap; }
+  .chip.pass { background: var(--good-bg); color: var(--good); }
+  .chip.fail { background: var(--bad-bg); color: var(--bad); }
+  .score { font-size: 28px; font-weight: 700; }
+  .schema { font-size: 12.5px; }
+  .schema code, pre, textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .schema ul { margin: 2px 0 10px; padding-left: 18px; color: var(--muted); }
+  .schema b { color: var(--ink); }
+  textarea { width: 100%; min-height: 150px; padding: 10px; font-size: 14px; line-height: 1.45; resize: vertical;
+             border: 1px solid var(--line); border-radius: 8px; background: var(--code-bg); color: var(--ink); tab-size: 2; }
+  pre { margin: 0 0 10px; padding: 10px; background: var(--code-bg); border-radius: 8px; overflow: auto; font-size: 13px; }
+  .tablewrap { overflow: auto; max-height: 340px; border: 1px solid var(--line); border-radius: 8px; margin-top: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { padding: 5px 10px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { position: sticky; top: 0; background: var(--code-bg); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .msg { padding: 8px 12px; border-radius: 8px; margin: 10px 0 0; font-size: 14px; }
+  .msg.good { background: var(--good-bg); color: var(--good); }
+  .msg.bad { background: var(--bad-bg); color: var(--bad); }
+  .msg.warn { background: var(--warn-bg); color: var(--warn); }
+  .muted { color: var(--muted); font-size: 13px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; font-weight: 600; }
+  .hidden { display: none !important; }
+  .topic { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>SQL Quiz · Employees database</h1>
+  <span class="who" id="who"></span>
+  <button id="signout" class="hidden">Sign out</button>
+</header>
+
+<main>
+  <div id="setup" class="card hidden">
+    <h2>Setup needed</h2>
+    <p>Open <code>config.js</code> and paste your Supabase project URL and anon key, then reload. See the README.</p>
+  </div>
+
+  <!-- signed out -->
+  <section id="auth" class="card auth hidden">
+    <h2>Sign in to take the quiz</h2>
+    <p class="muted">You need an account to run queries or save answers. Questions stay hidden until you sign in.</p>
+    <form id="authform">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email" required>
+      <label for="password">Password (min 6 characters)</label>
+      <input id="password" type="password" autocomplete="current-password" minlength="6" required>
+      <div class="row">
+        <button class="primary" type="submit" id="signin">Sign in</button>
+        <button type="button" id="signup">Create account</button>
+      </div>
+    </form>
+    <div id="authmsg" class="msg hidden" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- signed in -->
+  <div id="app" class="layout hidden">
+    <aside>
+      <div class="card">
+        <h3>Your score</h3>
+        <div class="score"><span id="score">0</span> / <span id="total">20</span></div>
+        <p class="muted" id="scorenote">Points count for your latest saved answer to each question.</p>
+      </div>
+      <div class="card">
+        <h3>Questions</h3>
+        <ul class="qlist" id="qlist"></ul>
+      </div>
+      <div class="card schema">
+        <h3>Tables you can query</h3>
+        <b><code>departments</code></b>
+        <ul><li>id, name, location, annual_budget</li></ul>
+        <b><code>employees</code></b>
+        <ul>
+          <li>id, first_name, last_name</li>
+          <li>department_id → departments.id</li>
+          <li>job_title, employment_type (<i>Full-time / Part-time / Contract</i>), city</li>
+          <li>hire_date, salary, performance_rating (1.0–5.0)</li>
+        </ul>
+        <p class="muted">Only single <code>SELECT</code> / <code>WITH</code> queries are allowed.</p>
+      </div>
+    </aside>
+
+    <section>
+      <div class="card">
+        <div class="topic" id="qtopic"></div>
+        <h2 id="qtitle"></h2>
+        <p id="qprompt"></p>
+        <label for="sql">Your SQL <span class="muted">(Ctrl/⌘ + Enter to run)</span></label>
+        <textarea id="sql" spellcheck="false" placeholder="SELECT ..."></textarea>
+        <div class="row" style="margin-top:10px">
+          <button class="primary" id="run">▶ Run</button>
+          <button id="save">Save answer</button>
+          <button id="hint">Show hint</button>
+        </div>
+        <div id="status" class="msg hidden" role="status" aria-live="polite"></div>
+        <div id="results"></div>
+        <div id="hintbox" class="hidden">
+          <h3 style="margin-top:16px">Hint · expected SQL</h3>
+          <pre id="hintsql"></pre>
+          <h3>Expected result</h3>
+          <div id="hintrows"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <details id="activity">
+          <summary>My activity (audit log)</summary>
+          <p class="muted">Every run, save and hint is recorded by the database. You can read your own rows but nobody who takes the quiz can change them.</p>
+          <div id="activityrows"></div>
+        </details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const cfg = window.QUIZ_CONFIG || {};
+  const configured = cfg.SUPABASE_URL && !cfg.SUPABASE_URL.includes("YOUR-PROJECT-REF")
+                  && cfg.SUPABASE_ANON_KEY && !cfg.SUPABASE_ANON_KEY.includes("YOUR-ANON");
+  if (!configured || !window.supabase) { $("setup").classList.remove("hidden"); return; }
+
+  const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  let questions = [], answers = new Map(), current = null, busy = false;
+
+  // ---------- small helpers (everything user-visible goes through textContent) ----------
+  const show = (el, on = true) => el.classList.toggle("hidden", !on);
+  function say(el, text, kind) { el.textContent = text; el.className = "msg " + kind; }
+  function clear(el) { el.textContent = ""; }
+  function tableFrom(rows, note) {
+    const wrap = document.createElement("div");
+    if (!rows.length) { const p = document.createElement("p"); p.className = "muted"; p.textContent = "0 rows returned."; wrap.append(p); return wrap; }
+    const cols = Object.keys(rows[0]);
+    const t = document.createElement("table"), thead = t.createTHead().insertRow();
+    cols.forEach((c) => { const th = document.createElement("th"); th.textContent = c; thead.append(th); });
+    const tb = t.createTBody();
+    rows.forEach((r) => {
+      const tr = tb.insertRow();
+      cols.forEach((c) => {
+        const td = tr.insertCell(), v = r[c];
+        td.textContent = v === null ? "NULL" : String(v);
+        if (typeof v === "number") td.className = "num";
+        if (v === null) td.style.opacity = ".6";
+      });
+    });
+    const box = document.createElement("div"); box.className = "tablewrap"; box.append(t);
+    const cap = document.createElement("p"); cap.className = "muted";
+    cap.textContent = `${rows.length} row${rows.length === 1 ? "" : "s"}` + (note ? " · " + note : "");
+    wrap.append(cap, box);
+    return wrap;
+  }
+  function setBusy(b) { busy = b; ["run", "save", "hint"].forEach((id) => ($(id).disabled = b)); }
+
+  // ---------- auth ----------
+  async function authAction(kind) {
+    const email = $("email").value.trim(), password = $("password").value;
+    const msg = $("authmsg"); show(msg);
+    if (!email || password.length < 6) return say(msg, "Enter an email and a password of at least 6 characters.", "bad");
+    say(msg, kind === "up" ? "Creating account…" : "Signing in…", "warn");
+    const { data, error } = kind === "up"
+      ? await sb.auth.signUp({ email, password })
+      : await sb.auth.signInWithPassword({ email, password });
+    if (error) return say(msg, error.message, "bad");
+    if (kind === "up" && !data.session) say(msg, "Account created. Check your email to confirm it, then sign in.", "good");
+  }
+  $("authform").addEventListener("submit", (e) => { e.preventDefault(); authAction("in"); });
+  $("signup").addEventListener("click", () => authAction("up"));
+  $("signout").addEventListener("click", () => sb.auth.signOut());
+
+  sb.auth.onAuthStateChange((_event, session) => { render(session); });
+  sb.auth.getSession().then(({ data }) => render(data.session));
+
+  let shownFor;   // undefined until the first auth state arrives (null = signed out)
+  async function render(session) {
+    const uid = session ? session.user.id : null;
+    if (uid === shownFor) return;           // ignore duplicate auth events (token refresh etc.)
+    shownFor = uid;
+    show($("auth"), !session); show($("app"), !!session); show($("signout"), !!session);
+    $("who").textContent = session ? session.user.email : "";
+    if (!session) { questions = []; answers.clear(); current = null; return; }
+    await loadQuiz();
+  }
+
+  // ---------- quiz ----------
+  async function loadQuiz() {
+    const [q, a] = await Promise.all([
+      sb.from("quiz_questions").select("id,position,topic,prompt,points,ordered").order("position"),
+      sb.from("quiz_answers").select("question_id,sql,passed"),
+    ]);
+    if (q.error) { show($("app"), false); show($("setup")); $("setup").querySelector("p").textContent = "Could not load questions: " + q.error.message; return; }
+    questions = q.data;
+    answers = new Map((a.data || []).map((r) => [r.question_id, r]));
+    $("total").textContent = questions.reduce((s, x) => s + x.points, 0);
+    drawList(); updateScore();
+    select(current && questions.find((x) => x.id === current.id) || questions[0]);
+    loadActivity();
+  }
+  function drawList() {
+    const ul = $("qlist"); clear(ul);
+    questions.forEach((q) => {
+      const li = document.createElement("li"), b = document.createElement("button");
+      const ans = answers.get(q.id);
+      const n = document.createElement("span"); n.className = "n"; n.textContent = "Q" + q.position;
+      const t = document.createElement("span"); t.className = "t"; t.textContent = q.topic;
+      const c = document.createElement("span");
+      c.className = "chip " + (ans ? (ans.passed ? "pass" : "fail") : "");
+      c.textContent = ans ? (ans.passed ? "✓ " + q.points + " pts" : "saved · not matching") : q.points + " pts";
+      b.append(n, t, c);
+      if (current && current.id === q.id) b.setAttribute("aria-current", "true");
+      b.addEventListener("click", () => select(q));
+      li.append(b); ul.append(li);
+    });
+  }
+  function updateScore() {
+    $("score").textContent = questions.reduce((s, q) => s + ((answers.get(q.id) || {}).passed ? q.points : 0), 0);
+  }
+  function select(q) {
+    if (!q) return;
+    current = q;
+    $("qtopic").textContent = "Question " + q.position + " of " + questions.length + " · " + q.topic;
+    $("qtitle").textContent = q.points + " points";
+    $("qprompt").textContent = q.prompt;
+    $("sql").value = (answers.get(q.id) || {}).sql || "";
+    clear($("results")); show($("status"), false); show($("hintbox"), false);
+    drawList();
+  }
+
+  async function runQuery() {
+    if (busy) return; const sql = $("sql").value;
+    setBusy(true); say($("status"), "Running…", "warn"); show($("status")); clear($("results"));
+    const { data, error } = await sb.rpc("run_query", { p_sql: sql, p_question_id: current.id });
+    setBusy(false);
+    if (error) return say($("status"), friendly(error), "bad");
+    if (!data.ok) { say($("status"), data.error, "bad"); return loadActivity(); }
+    show($("status"), false);
+    $("results").append(tableFrom(data.rows, data.truncated ? "showing the first 200 rows" : ""));
+    loadActivity();
+  }
+  async function saveAnswer() {
+    if (busy) return; const sql = $("sql").value;
+    setBusy(true); say($("status"), "Saving and checking…", "warn"); show($("status")); clear($("results"));
+    const { data, error } = await sb.rpc("save_answer", { p_question_id: current.id, p_sql: sql });
+    setBusy(false);
+    if (error) return say($("status"), friendly(error), "bad");
+    if (!data.ok) { say($("status"), data.error, "bad"); return loadActivity(); }
+    answers.set(current.id, { question_id: current.id, sql, passed: data.passed });
+    say($("status"), data.passed
+      ? `Saved — your result matches the expected result. +${data.points} points!`
+      : "Saved, but your result does not match the expected result yet. Compare with the rows below, or open the hint.",
+      data.passed ? "good" : "warn");
+    $("results").append(tableFrom(data.rows, data.truncated ? "showing the first 200 rows" : ""));
+    drawList(); updateScore(); loadActivity();
+  }
+  async function showHint() {
+    if (busy) return;
+    setBusy(true);
+    const { data, error } = await sb.rpc("get_hint", { p_question_id: current.id });
+    setBusy(false);
+    if (error) { show($("status")); return say($("status"), friendly(error), "bad"); }
+    $("hintsql").textContent = data.sql;
+    const box = $("hintrows"); clear(box); box.append(tableFrom(data.rows));
+    show($("hintbox")); loadActivity();
+  }
+  function friendly(err) {
+    return /sign in required|jwt|permission denied/i.test(err.message) ? "Please sign in first." : err.message;
+  }
+  $("run").addEventListener("click", runQuery);
+  $("save").addEventListener("click", saveAnswer);
+  $("hint").addEventListener("click", showHint);
+  $("sql").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); runQuery(); }
+    if (e.key === "Tab" && !e.shiftKey) {            // keep Tab as indent inside the editor
+      e.preventDefault(); const t = e.target, s = t.selectionStart;
+      t.setRangeText("  ", s, t.selectionEnd, "end");
+    }
+  });
+
+  async function loadActivity() {
+    const { data, error } = await sb.from("audit_log")
+      .select("id,action,question_id,success,row_count,error,created_at").order("id", { ascending: false }).limit(15);
+    const box = $("activityrows"); clear(box);
+    if (error) return;
+    box.append(tableFrom(data.map((r) => ({
+      when: new Date(r.created_at).toLocaleString(), action: r.action,
+      question: r.question_id, ok: r.success ? "yes" : "no", rows: r.row_count, error: r.error,
+    }))));
+  }
+})();
+</script>
+</body>
+</html>

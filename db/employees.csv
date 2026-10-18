@@ -1,0 +1,61 @@
+id,first_name,last_name,department_id,job_title,employment_type,city,hire_date,salary,performance_rating
+1,Kenji,Patel,1,DevOps Engineer,Part-time,Charlotte,2019-07-26,72500,4.1
+2,Miles,Bailey,1,DevOps Engineer,Full-time,Raleigh,2019-12-08,114000,2.8
+3,Isaac,Nguyen,1,Senior Software Engineer,Full-time,Raleigh,2016-02-14,147500,3.3
+4,Wei,Carter,1,DevOps Engineer,Full-time,Raleigh,2025-02-03,117000,4.9
+5,Ruby,Morris,1,Software Engineer,Part-time,Durham,2021-11-09,60500,4.4
+6,Anika,Cooper,1,Software Engineer,Full-time,Charlotte,2022-05-15,129000,3.5
+7,Wyatt,Adams,1,DevOps Engineer,Full-time,Asheville,2017-12-19,138500,3.9
+8,Leo,Edwards,1,DevOps Engineer,Full-time,Raleigh,2023-01-28,140000,4.0
+9,Sofia,Green,1,Senior Software Engineer,Full-time,Raleigh,2020-06-16,148500,3.9
+10,Eli,Powell,1,Senior Software Engineer,Full-time,Asheville,2017-09-07,131500,2.6
+11,Owen,Davis,1,DevOps Engineer,Full-time,Charlotte,2017-12-01,112000,2.7
+12,Liam,Reed,1,DevOps Engineer,Full-time,Charlotte,2016-12-17,127500,4.1
+13,Diego,Martinez,1,Software Engineer,Full-time,Durham,2021-04-30,126000,3.9
+14,Amelia,James,1,Software Engineer,Full-time,Asheville,2022-09-26,133000,2.7
+15,Amara,Collins,2,Data Analyst,Full-time,Asheville,2020-09-22,93500,3.2
+16,Nolan,Torres,2,ML Engineer,Part-time,Charlotte,2017-03-09,71500,3.4
+17,Mia,Mitchell,2,ML Engineer,Full-time,Charlotte,2025-04-05,155500,4.3
+18,Olivia,Watson,2,ML Engineer,Part-time,Durham,2016-11-26,68000,3.9
+19,Emma,Brown,2,ML Engineer,Full-time,Durham,2021-02-23,138000,4.9
+20,Priya,Parker,2,Data Scientist,Contract,Raleigh,2024-08-13,139500,3.2
+21,Theo,Nelson,2,Data Analyst,Full-time,Raleigh,2019-08-19,88000,2.9
+22,Mason,Henderson,2,Data Analyst,Full-time,Charlotte,2025-09-28,88500,4.5
+23,Yuki,Jenkins,2,ML Engineer,Full-time,Asheville,2020-02-11,163000,3.2
+24,Chloe,Allen,2,Data Analyst,Full-time,Durham,2023-04-28,102500,3.6
+25,Harper,Baker,2,ML Engineer,Contract,Durham,2025-09-01,134500,3.9
+26,Arjun,Price,3,Marketing Manager,Part-time,Asheville,2023-07-14,56000,3.9
+27,Lena,Perry,3,Marketing Specialist,Full-time,Charlotte,2017-10-06,69000,3.5
+28,Nora,Johnson,3,Marketing Specialist,Full-time,Raleigh,2023-01-07,56000,3.0
+29,Jonah,Scott,3,Marketing Manager,Full-time,Raleigh,2023-04-09,89500,3.2
+30,Logan,Wood,3,Marketing Manager,Full-time,Charlotte,2023-04-19,103500,3.0
+31,James,Ward,3,Content Strategist,Full-time,Raleigh,2025-02-16,65500,4.8
+32,Ava,Kim,3,Content Strategist,Full-time,Charlotte,2018-10-30,72000,3.9
+33,Layla,Evans,3,Marketing Manager,Full-time,Asheville,2018-01-15,97000,2.9
+34,Hugo,Lopez,3,Content Strategist,Full-time,Durham,2025-04-05,74500,3.7
+35,Sophia,Young,4,Sales Representative,Full-time,Asheville,2023-09-06,75000,3.4
+36,Rohan,Hall,4,Sales Representative,Full-time,Raleigh,2025-03-19,74000,3.9
+37,Henry,Ross,4,Account Executive,Part-time,Durham,2016-09-14,51500,3.6
+38,Ethan,Long,4,Sales Manager,Full-time,Asheville,2021-07-08,128000,4.9
+39,Ella,Phillips,4,Account Executive,Full-time,Charlotte,2016-12-31,87500,2.8
+40,Zoe,Gray,4,Account Executive,Full-time,Charlotte,2017-06-07,72000,4.6
+41,Caleb,Coleman,4,Account Executive,Full-time,Asheville,2025-08-21,94500,4.3
+42,Jack,Rogers,4,Sales Representative,Full-time,Asheville,2024-03-25,74500,3.8
+43,Noah,Brooks,4,Sales Representative,Full-time,Durham,2018-06-14,59500,3.5
+44,Aria,Wilson,4,Account Executive,Full-time,Durham,2018-12-25,85500,4.3
+45,Hazel,Hill,4,Sales Manager,Contract,Asheville,2017-03-06,103500,3.5
+46,Omar,Bennett,4,Account Executive,Full-time,Charlotte,2024-07-30,105000,4.2
+47,Fatima,Stewart,5,Recruiter,Full-time,Asheville,2021-10-18,75500,3.6
+48,Lucas,Lee,5,Recruiter,Full-time,Durham,2018-02-01,66500,4.6
+49,Maya,Turner,5,Recruiter,Full-time,Durham,2018-10-26,71500,4.0
+50,Felix,Garcia,5,HR Generalist,Contract,Durham,2019-10-04,71500,3.0
+51,Tessa,King,5,HR Generalist,Full-time,Asheville,2023-12-19,74000,2.9
+52,Iris,Walker,5,HR Generalist,Part-time,Durham,2017-02-10,35500,2.8
+53,Mateo,Chen,6,Financial Analyst,Full-time,Raleigh,2022-07-08,76500,4.1
+54,Lucia,Campbell,6,Accountant,Contract,Charlotte,2024-12-30,77000,4.8
+55,Mei,Cook,6,Financial Analyst,Part-time,Asheville,2022-09-24,38500,4.7
+56,Grace,Wright,6,Finance Manager,Full-time,Durham,2025-02-19,100000,4.3
+57,Carmen,Murphy,6,Financial Analyst,Full-time,Asheville,2016-04-09,87500,4.5
+58,Nadia,Barnes,6,Financial Analyst,Full-time,Raleigh,2018-08-10,92500,3.4
+59,Idris,Roberts,6,Accountant,Full-time,Charlotte,2017-12-29,68500,4.5
+60,Dean,Howard,6,Accountant,Full-time,Charlotte,2023-11-03,81000,4.1

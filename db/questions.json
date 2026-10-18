@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "position": 1,
+    "topic": "SELECT \u00b7 ORDER BY \u00b7 LIMIT",
+    "points": 4,
+    "ordered": true,
+    "prompt": "Return the first_name, last_name and salary of the 5 highest-paid employees, highest salary first.",
+    "hint_sql": "SELECT first_name, last_name, salary\nFROM employees\nORDER BY salary DESC\nLIMIT 5;"
+  },
+  {
+    "id": 2,
+    "position": 2,
+    "topic": "JOIN \u00b7 WHERE",
+    "points": 4,
+    "ordered": false,
+    "prompt": "Return the first_name, last_name and job_title of every Full-time employee in the Sales department who has a performance_rating of 4.0 or higher.",
+    "hint_sql": "SELECT e.first_name, e.last_name, e.job_title\nFROM employees e\nJOIN departments d ON d.id = e.department_id\nWHERE d.name = 'Sales'\n  AND e.employment_type = 'Full-time'\n  AND e.performance_rating >= 4.0;"
+  },
+  {
+    "id": 3,
+    "position": 3,
+    "topic": "GROUP BY \u00b7 aggregates",
+    "points": 4,
+    "ordered": false,
+    "prompt": "For each employment_type, return the type, the number of employees (headcount) and the average salary rounded to a whole dollar (avg_salary).",
+    "hint_sql": "SELECT employment_type,\n       COUNT(*) AS headcount,\n       ROUND(AVG(salary), 0) AS avg_salary\nFROM employees\nGROUP BY employment_type;"
+  },
+  {
+    "id": 4,
+    "position": 4,
+    "topic": "JOIN \u00b7 GROUP BY \u00b7 HAVING",
+    "points": 4,
+    "ordered": true,
+    "prompt": "Return each department name and its average salary rounded to 2 decimals (avg_salary), but only for departments whose average salary is above 80000. Show the highest average first.",
+    "hint_sql": "SELECT d.name, ROUND(AVG(e.salary), 2) AS avg_salary\nFROM employees e\nJOIN departments d ON d.id = e.department_id\nGROUP BY d.name\nHAVING AVG(e.salary) > 80000\nORDER BY avg_salary DESC;"
+  },
+  {
+    "id": 5,
+    "position": 5,
+    "topic": "Subquery \u00b7 correlated",
+    "points": 4,
+    "ordered": false,
+    "prompt": "For each department name, count how many of its employees earn more than the average salary of their own department (employees_above_avg). Departments with none may be left out.",
+    "hint_sql": "SELECT d.name, COUNT(*) AS employees_above_avg\nFROM employees e\nJOIN departments d ON d.id = e.department_id\nWHERE e.salary > (SELECT AVG(x.salary)\n                  FROM employees x\n                  WHERE x.department_id = e.department_id)\nGROUP BY d.name;"
+  }
+]

@@ -1,0 +1,37 @@
+name: Database check
+
+# Connects to the hosted Supabase database using the DATABASE_URL repository secret
+# (Settings -> Secrets and variables -> Actions) and runs scripts/check_db.py.
+# No credentials are stored in this file or anywhere else in the repository.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # weekly: also keeps the free Supabase project from auto-pausing after 7 idle days
+    - cron: "17 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  check-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check hosted database (data, hints, sign-in gating, sandbox, audit-log integrity)
+        working-directory: scripts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python check_db.py
