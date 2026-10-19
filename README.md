@@ -16,13 +16,12 @@ Save an answer and the server checks your result against the expected result.
 1. [How to take the quiz](#how-to-take-the-quiz)
 2. [What is in the quiz](#what-is-in-the-quiz)
 3. [Architecture](#architecture)
-4. [Assignment requirements → where to find them](#assignment-requirements--where-to-find-them)
-5. [Set it up yourself (step by step)](#set-it-up-yourself-step-by-step)
-6. [Security design](#security-design)
-7. [Extra credit](#extra-credit)
-8. [Testing](#testing)
-9. [Repository layout](#repository-layout)
-10. [Troubleshooting](#troubleshooting)
+4. [Set it up yourself (step by step)](#set-it-up-yourself-step-by-step)
+5. [Security design](#security-design)
+6. [Extra credit](#extra-credit)
+7. [Testing](#testing)
+8. [Repository layout](#repository-layout)
+9. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -95,19 +94,7 @@ flowchart LR
   user's sign-in token. All access to quiz data goes through three server-side functions.
 * **Python scripts** (seeding, CI checks) connect straight to Postgres over the network through the
   **Session pooler** with `sslmode=require`, using `psycopg2`, exactly like the in-class lab.
-
-## Assignment requirements → where to find them
-
-| Requirement | Done with | Where |
-|---|---|---|
-| Hosted PostgreSQL | Supabase (free tier) | `db/schema.sql`, `db/*.csv`, `scripts/seed.py` |
-| Authentication; signed-out users cannot run or save | Supabase Auth; every RPC checks `auth.uid()` and is `EXECUTE`-granted only to signed-in users; questions/answers are behind row-level security | `index.html` (sign-in UI), `db/schema.sql` (gating) |
-| GitHub Actions with GitHub Secrets | Workflow reads the `DATABASE_URL` secret and runs `scripts/check_db.py` | `.github/workflows/ci.yml` |
-| SQL quiz worth 20 points, hints, Run shows live rows | 5 × 4 points, hint = expected SQL + expected result | `db/questions.json`, `index.html` |
-| README with quiz URL and setup | this file | |
-| Extra: parameterized queries | all Python SQL uses bound `%s` parameters; DB functions bind values | [see below](#extra-credit) |
-| Extra: audit log | `audit_log` table written by the server for every run / save / hint | [see below](#extra-credit) |
-| Extra: taker cannot edit the audit log | no write privileges + append-only triggers + CI test | [see below](#extra-credit) |
+  
 
 ## Set it up yourself (step by step)
 
@@ -200,7 +187,7 @@ duplicate output column names collapse into one in the results table (alias them
   non-value item (the role name for `SET ROLE`) with `psycopg2.sql.Identifier` rather than string formatting.
 * Inside the database, `run_query`/`save_answer`/`get_hint`/`_audit` take their inputs as typed function
   parameters and PL/pgSQL variables, which Postgres binds as values.
-* The *only* dynamic SQL in the system is the student's own query — that is the point of a SQL quiz — and it is confined
+* The *only* dynamic SQL in the system is the student's own query， that is the point of a SQL quiz， and it is confined
   by the sandbox described above rather than by string escaping.
 
 ### 2. Audit log — who ran or saved what
