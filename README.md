@@ -18,10 +18,9 @@ Save an answer and the server checks your result against the expected result.
 3. [Architecture](#architecture)
 4. [Set it up yourself (step by step)](#set-it-up-yourself-step-by-step)
 5. [Security design](#security-design)
-6. [Extra credit](#extra-credit)
-7. [Testing](#testing)
-8. [Repository layout](#repository-layout)
-9. [Troubleshooting](#troubleshooting)
+6. [Testing](#testing)
+7. [Repository layout](#repository-layout)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -177,37 +176,6 @@ Letting strangers type SQL into your database is the dangerous part of this proj
 
 Known limits (acceptable for a classroom quiz): a `;` inside a string literal is rejected as “extra statement”;
 duplicate output column names collapse into one in the results table (alias them); 60-row toy data only.
-
-## Extra credit
-
-### 1. Parameterized queries (no f-string SQL)
-* `scripts/seed.py` loads every CSV row and question with bound parameters
-  (`cur.executemany("insert into … values (%s, %s, …)", rows)`); nothing is formatted into a SQL string.
-* `scripts/check_db.py` passes every value (user ids, question ids, test queries) as `%s` parameters, and composes the one
-  non-value item (the role name for `SET ROLE`) with `psycopg2.sql.Identifier` rather than string formatting.
-* Inside the database, `run_query`/`save_answer`/`get_hint`/`_audit` take their inputs as typed function
-  parameters and PL/pgSQL variables, which Postgres binds as values.
-* The *only* dynamic SQL in the system is the student's own query， that is the point of a SQL quiz， and it is confined
-  by the sandbox described above rather than by string escaping.
-
-### 2. Audit log — who ran or saved what
-Table `public.audit_log` records **user id, email, action (`run` / `save` / `hint`), question, the SQL text,
-success, row count, error and timestamp**. Rows are written by the server-side functions, so a client can’t forge
-or skip them. Each user can read their own rows in the page (**My activity**); the owner can see everyone’s:
-
-```sql
-select created_at, user_email, action, question_id, success, left(sql, 60) as sql
-from audit_log order by id desc limit 20;
-```
-
-### 3. Integrity check — the taker role cannot edit the log
-(The assignment lists this as the third extra; it is implemented too.)
-* **Privileges:** `anon` and `authenticated` have no `INSERT/UPDATE/DELETE/TRUNCATE` on `audit_log`
-  (`SELECT` on own rows only).
-* **Triggers:** `BEFORE UPDATE OR DELETE` and `BEFORE TRUNCATE` triggers raise *“audit_log is append-only”*
-  for everybody, including the table owner.
-* **Proof:** `scripts/check_db.py` impersonates a signed-in user and asserts that INSERT, UPDATE, DELETE and
-  TRUNCATE on `audit_log` all fail, and that the owner-level triggers fire. It runs in every GitHub Actions run.
 
 ## Testing
 
