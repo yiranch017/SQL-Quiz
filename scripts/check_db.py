@@ -1,6 +1,7 @@
 """Health + security checks for the hosted quiz database (run by GitHub Actions).
 
-Connects with DATABASE_URL (a GitHub Secret in CI), then verifies:
+Connects with DATABASE_URL (a GitHub Secret in CI) over SSL, then verifies:
+  0. ssl       the connection to the database is encrypted
   1. data      the quiz tables are loaded and the questions add up to 20 points
   2. hints     every question's hint SQL runs and returns rows
   3. gating    signed-out callers cannot run queries; signed-in ones can
@@ -11,10 +12,12 @@ Everything happens inside one transaction that is rolled back at the end, so the
 leaves no trace. All SQL values are bound parameters (%s). Exit code 1 on any failure.
 """
 import json
+import os
 import sys
 import uuid
 
 import psycopg2
+from psycopg2 import sql
 
 from db import connect
 
@@ -34,7 +37,7 @@ def as_user(cur, role, user_id=None):
     cur.execute("reset role")
     cur.execute("select set_config('request.jwt.claims', %s, true)",
                 (json.dumps({"sub": user_id, "email": "ci@example.com"} if user_id else {}),))
-    cur.execute(f"set local role {role}")  # role is one of our own constants, never user input
+    cur.execute(sql.SQL("set local role {}").format(sql.Identifier(role)))  # identifiers are quoted by psycopg2, not string-formatted
 
 
 def blocked(cur, sql, params=None):
@@ -61,8 +64,12 @@ def main():
     try:
         cur.execute("select version()")
         print("connected:", cur.fetchone()[0].split(",")[0])
-        cur.execute("select coalesce(bool_or(ssl), false) from pg_stat_ssl where pid = pg_backend_pid()")
-        print("ssl in use:", cur.fetchone()[0])
+        # conn.info.ssl_in_use is libpq's view of OUR connection (client -> pooler).
+        # (pg_stat_ssl would show the pooler -> database hop instead, which is not what we control.)
+        encrypted = conn.info.ssl_in_use
+        print("encrypted connection (sslmode=require):", encrypted)
+        if os.environ.get("DB_SSLMODE", "require") != "disable":  # only the local test harness disables SSL
+            check("connection to the database is SSL-encrypted", encrypted)
 
         # 1. data ------------------------------------------------------------------------
         cur.execute("select count(*) from public.departments")

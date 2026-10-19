@@ -196,7 +196,8 @@ duplicate output column names collapse into one in the results table (alias them
 ### 1. Parameterized queries (no f-string SQL)
 * `scripts/seed.py` loads every CSV row and question with bound parameters
   (`cur.executemany("insert into … values (%s, %s, …)", rows)`); nothing is formatted into a SQL string.
-* `scripts/check_db.py` passes every value (user ids, question ids, roles' test queries) as `%s` parameters.
+* `scripts/check_db.py` passes every value (user ids, question ids, test queries) as `%s` parameters, and composes the one
+  non-value item (the role name for `SET ROLE`) with `psycopg2.sql.Identifier` rather than string formatting.
 * Inside the database, `run_query`/`save_answer`/`get_hint`/`_audit` take their inputs as typed function
   parameters and PL/pgSQL variables, which Postgres binds as values.
 * The *only* dynamic SQL in the system is the student's own query — that is the point of a SQL quiz — and it is confined
@@ -225,7 +226,7 @@ from audit_log order by id desc limit 20;
 
 | What | How | Where |
 |---|---|---|
-| Hosted DB health + security (34 checks) | `python scripts/check_db.py` | runs in GitHub Actions with the secret |
+| Hosted DB health + security (35 checks incl. SSL) | `python scripts/check_db.py` | runs in GitHub Actions with the secret |
 | Grading logic (equivalent queries pass, wrong ones fail, ordering rules, upsert) | `python tests/local_grading_test.py` against a scratch local Postgres seeded with `tests/local_supabase_stub.sql` | local only (inserts a fake `auth.users` row) |
 
 `check_db.py` runs in one transaction that is rolled back, so it leaves no data behind.
